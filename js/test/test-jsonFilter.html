@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>jsonFilter test suite</title>
+  <link type="text/css" rel="stylesheet" href="qunit-1.10.0.css" media="all" />
+
+</head>
+<body>
+  <div id="qunit"></div>
+	<script type="text/javascript" src="qunit-1.10.0.js"></script>
+	<script type="text/javascript" src="../jsonFilter.js"></script>
+	<script>
+		var testValues = [
+			{"id":1,"name":"toto","age":17}  //0
+			,{"id":2,"name":"tito","age":18} //1
+			,{"id":3,"name":"tata","age":16} //2
+			,{"id":4,"name":"titi","age":20} //3
+			,{"id":5,"name":"tati","age":32} //4
+			,{"id":6,"name":"tato","age":52} //5
+			,{"id":7,"name":"tita","age":12} //6
+			,{"id":7,"name":"ti+ta","age":12}//7
+		];
+		function getTestAssertValues(){
+			for(var i=0,l=arguments.length,res=[];i<l;i++){
+				res.push(testValues[arguments[i]]);
+			}
+			return res;
+		}
+		function getFilteredValues(filter){
+			return jsonFilter(filter).filter(testValues);
+		}
+		test("basic equality filters", function() {
+			deepEqual(getFilteredValues({age:12}),getTestAssertValues(6,7),'testing {prop:val}');
+			deepEqual(getFilteredValues({age:{"=":12}}),getTestAssertValues(6,7),'testing {prop:{"=":val}}');
+			deepEqual(getFilteredValues({age:{"$e":12}}),getTestAssertValues(6,7),'testing {prop:{"$e":val}}');
+			deepEqual(getFilteredValues({age:{"!=":12}}),getTestAssertValues(0,1,2,3,4,5),'testing {prop:{"!=":val}}');
+			deepEqual(getFilteredValues({age:{"$ne":12}}),getTestAssertValues(0,1,2,3,4,5),'testing {prop:{"$ne":val}}');
+			deepEqual(getFilteredValues({age:{"!e":12}}),getTestAssertValues(0,1,2,3,4,5),'testing {prop:{"!e":val}}');
+			deepEqual(getFilteredValues({age:{"<>":12}}),getTestAssertValues(0,1,2,3,4,5),'testing {prop:{"<>":val}}');
+		});
+		test("basic IN filters", function() {
+			deepEqual(getFilteredValues({age:[12,17]}),getTestAssertValues(0,6,7),'testing {prop:[val,val,...]}');
+			deepEqual(getFilteredValues({age:{'IN':[12,17]}}),getTestAssertValues(0,6,7),'testing {prop:{IN:[val,val,...]}}');
+			deepEqual(getFilteredValues({age:{"NOT IN":[12,17]}}),getTestAssertValues(1,2,3,4,5),'testing {prop:{"NOT IN":[val,val,...]}}');
+			deepEqual(getFilteredValues({age:{'$in':[12,17]}}),getTestAssertValues(0,6,7),'testing {prop:{"$in":[val,val,...]}}');
+			deepEqual(getFilteredValues({age:{"!in":[12,17]}}),getTestAssertValues(1,2,3,4,5),'testing {prop:{"!in":[val,val,...]}}');
+			deepEqual(getFilteredValues({age:{"$nin":[12,17]}}),getTestAssertValues(1,2,3,4,5),'testing {prop:{"$nin":[val,val,...]}}');
+		});
+		test("basic > filters", function() {
+			deepEqual(getFilteredValues({age:{">":17}}),getTestAssertValues(1,3,4,5),'testing {prop:{">":val}}');
+			deepEqual(getFilteredValues({age:{"$gt":17}}),getTestAssertValues(1,3,4,5),'testing {prop:{"$gt":val}}');
+			deepEqual(getFilteredValues({age:{">=":17}}),getTestAssertValues(0,1,3,4,5),'testing {prop:{">=":val}}');
+			deepEqual(getFilteredValues({age:{"$gte":17}}),getTestAssertValues(0,1,3,4,5),'testing {prop:{"$gte":val}}');
+		});
+		test("basic < filters", function() {
+			deepEqual(getFilteredValues({age:{"<":17}}),getTestAssertValues(2,6,7),'testing {prop:{"<":val}}');
+			deepEqual(getFilteredValues({age:{"$lt":17}}),getTestAssertValues(2,6,7),'testing {prop:{"$lt":val}}');
+			deepEqual(getFilteredValues({age:{"<=":17}}),getTestAssertValues(0,2,6,7),'testing {prop:{"<=":val}}');
+			deepEqual(getFilteredValues({age:{"$lte":17}}),getTestAssertValues(0,2,6,7),'testing {prop:{"$lte":val}}');
+		});
+		test("basic LIKE filters", function() {
+			deepEqual(getFilteredValues({name:{"$like":'%to'}}),getTestAssertValues(0,1,5),'testing {prop:{"$like":"%val"}}');
+			deepEqual(getFilteredValues({name:{"LIKE":'t%ta'}}),getTestAssertValues(2,6,7),'testing {prop:{"LIKE":"v%al"}}');
+			deepEqual(getFilteredValues({name:{"$like":'%at%'}}),getTestAssertValues(2,4,5),'testing {prop:{"$like":"%val%"}}');
+			deepEqual(getFilteredValues({name:{"$like":'__to'}}),getTestAssertValues(0,1,5),'testing {prop:{"$like":"__val"}}');
+			deepEqual(getFilteredValues({name:{"$like":'_i__'}}),getTestAssertValues(1,3,6),'testing {prop:{"$like":"_val__"}}');
+			deepEqual(getFilteredValues({name:{"!like":'%to'}}),getTestAssertValues(2,3,4,6,7),'testing {prop:{"!like":"%val"}}');
+			deepEqual(getFilteredValues({name:{"NOT LIKE":'t%ta'}}),getTestAssertValues(0,1,3,4,5),'testing {prop:{"NOT LIKE":"v%al"}}');
+			deepEqual(getFilteredValues({name:{"$nlike":'%at%'}}),getTestAssertValues(0,1,3,6,7),'testing {prop:{"$nlike":"%val%"}}');
+			deepEqual(getFilteredValues({name:{"$nlike":'__to'}}),getTestAssertValues(2,3,4,6,7),'testing {prop:{"$nlike":"__val"}}');
+			deepEqual(getFilteredValues({name:{"$nlike":'_i__'}}),getTestAssertValues(0,2,4,5,7),'testing {prop:{"$nlike":"_val__"}}');
+		});
+		test("basic REGEX filters", function() {
+			deepEqual(getFilteredValues({name:{"REGEX":"to$"}}),getTestAssertValues(0,1,5),'testing {prop:{"REGEX":"val$"}}');
+			deepEqual(getFilteredValues({name:{"REGEX":"/to$/"}}),getTestAssertValues(0,1,5),'testing {prop:{"REGEX":"/val$/"}}');
+			deepEqual(getFilteredValues({name:{"REGEX":/^(t.)\1$/}}),getTestAssertValues(0,2,3),'testing {prop:{"REGEX":/^val$/}}');
+		});
+		test("basic AND/OR/NOR testing", function() {
+			deepEqual(getFilteredValues({name:{$regex:"to$"},age:52}),getTestAssertValues(5),'testing {prop:{"$regex":"val$"},prop:val}');
+			deepEqual(getFilteredValues({$or:[{age:12},{age:52}]}),getTestAssertValues(5,6,7),'testing {$or:[{prop:val},{prop:val},...]}');
+			deepEqual(getFilteredValues({name:{$regex:"to$"},age:{'OR':[52,18]}}),getTestAssertValues(1,5),'testing {prop:{$regex:val},prop:{OR:[val,val]}}');
+			deepEqual(getFilteredValues({NOR:[{age:[52,18]},{name:'titi'}]}),getTestAssertValues(0,2,4,6,7),'testing {prop:{$regex:val},prop:{OR:[val,val]}}');
+		});
+	</script>
+</body>
+</html>
