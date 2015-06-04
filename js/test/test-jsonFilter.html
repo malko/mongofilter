@@ -9,7 +9,7 @@
 <body>
   <div id="qunit"></div>
 	<script type="text/javascript" src="qunit-1.10.0.js"></script>
-	<script type="text/javascript" src="../jsonFilter.js"></script>
+	<script type="text/javascript" src="../../dist/umd/jsonFilter.js"></script>
 	<script>
 		var testValues = [
 			{"id":1,"name":"toto","age":17}  //0
@@ -79,7 +79,7 @@
 		test("basic AND/OR/NOR testing", function() {
 			deepEqual(getFilteredValues({name:{$regex:"to$"},age:52}),getTestAssertValues(5),'testing {prop:{"$regex":"val$"},prop:val}');
 			deepEqual(getFilteredValues({$or:[{age:12},{age:52}]}),getTestAssertValues(5,6,7),'testing {$or:[{prop:val},{prop:val},...]}');
-			deepEqual(getFilteredValues({name:{$regex:"to$"},age:{'OR':[52,18]}}),getTestAssertValues(1,5),'testing {prop:{$regex:val},prop:{OR:[val,val]}}');
+			deepEqual(getFilteredValues({OR:{age:[52,18]}}),getTestAssertValues(1,5),'testing {prop:{$regex:val},prop:{OR:[val,val]}}');
 			deepEqual(getFilteredValues({NOR:[{age:[52,18]},{name:'titi'}]}),getTestAssertValues(0,2,4,6,7),'testing {prop:{$regex:val},prop:{OR:[val,val]}}');
 		});
 	</script>
