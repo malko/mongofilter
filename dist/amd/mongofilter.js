@@ -1,5 +1,5 @@
-/*https://github.com/malko/mongofilter brought to you under MIT licence by Jonathan Gotti version: 1.0.1*/
-define(['exports', 'module'], function (exports, module) {
+/*https://github.com/malko/mongofilter brought to you under MIT licence by Jonathan Gotti version: 1.0.2*/
+define('mongofilter', ['exports', 'module'], function (exports, module) {
 	/*jshint esnext:true, laxcomma:true, laxbreak:true*/
 	'use strict';
 

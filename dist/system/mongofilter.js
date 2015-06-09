@@ -1,5 +1,5 @@
-/*https://github.com/malko/mongofilter brought to you under MIT licence by Jonathan Gotti version: 1.0.1*/
-System.register([], function (_export) {
+/*https://github.com/malko/mongofilter brought to you under MIT licence by Jonathan Gotti version: 1.0.2*/
+System.register('mongofilter', [], function (_export) {
 	/*jshint esnext:true, laxcomma:true, laxbreak:true*/
 	'use strict';
 

@@ -1,7 +1,7 @@
-/*https://github.com/malko/mongofilter brought to you under MIT licence by Jonathan Gotti version: 1.0.1*/
+/*https://github.com/malko/mongofilter brought to you under MIT licence by Jonathan Gotti version: 1.0.2*/
 (function (global, factory) {
 	if (typeof define === 'function' && define.amd) {
-		define(['exports', 'module'], factory);
+		define('mongofilter', ['exports', 'module'], factory);
 	} else if (typeof exports !== 'undefined' && typeof module !== 'undefined') {
 		factory(exports, module);
 	} else {

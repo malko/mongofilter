@@ -1,4 +1,4 @@
-/*https://github.com/malko/mongofilter brought to you under MIT licence by Jonathan Gotti version: 1.0.1*/
+/*https://github.com/malko/mongofilter brought to you under MIT licence by Jonathan Gotti version: 1.0.2*/
 /*jshint esnext:true, laxcomma:true, laxbreak:true*/
 'use strict';
 
