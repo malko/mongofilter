@@ -119,7 +119,7 @@ System.register([], function (_export) {
 		execute: function () {
 			EXP_LIKE_PERCENT = /(^|[^%])%(?!%)/g // replace unescaped % chars
 			;
-			EXP_LIKE_UNDERSCORE = /(^|[^\])(_+)/g // replace unescaped _ chars
+			EXP_LIKE_UNDERSCORE = /(^|[^\\])(_+)/g // replace unescaped _ char (must double antislash else will break in babel generated version)
 			;
 
 			EXP_LIKE_UNDERSCORE_REPLACE = function EXP_LIKE_UNDERSCORE_REPLACE(m, p, _) {
