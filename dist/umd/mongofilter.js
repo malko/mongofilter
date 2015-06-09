@@ -1,4 +1,4 @@
-/*https://github.com/malko/mongofilter brought to you under MIT licence by Jonathan Gotti version: 1.0.2*/
+/*https://github.com/malko/mongofilter brought to you under MIT licence by Jonathan Gotti version: 1.0.3*/
 (function (global, factory) {
 	if (typeof define === 'function' && define.amd) {
 		define('mongofilter', ['exports', 'module'], factory);
@@ -43,6 +43,9 @@
 			return a !== b;
 		},
 		REGEX: function REGEX(a, b) {
+			if (a === undefined) {
+				return false;
+			}
 			if (typeof b === 'string') {
 				(function () {
 					var flag = undefined,

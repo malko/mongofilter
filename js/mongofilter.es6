@@ -12,6 +12,9 @@ const EXP_LIKE_PERCENT = /(^|[^%])%(?!%)/g  // replace unescaped % chars
 		, '=': function (a, b) { return a === b;}
 		, '!=': function (a, b) { return a !== b;}
 		, REGEX: function (a, b) {
+			if (a === undefined) {
+				return false;
+			}
 			if (typeof b === 'string') {
 				let flag, exp;
 				b.replace(/^\/([\s\S]*)\/([igm])?/, (m, e, f) => { exp = e; flag = f;});

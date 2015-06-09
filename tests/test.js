@@ -141,27 +141,30 @@ describe("basic LIKE filters", function () {
 	});
 });
 describe("basic REGEX filters", function () {
-	it('should handle "" comparison {prop:{"REGEX":"val$"}}', function () {
+	it('should handle RegExp object comparison {prop:{"REGEX":/val$/}}', function () {
+		expect(getFilteredValues({name:{"REGEX":/to$/}})).to.eql(getTestAssertValues(0,1,5));
+	});
+	it('should handle string representing a regexp comparison {prop:{"REGEX":"val$"}}', function () {
 		expect(getFilteredValues({name:{"REGEX":"to$"}})).to.eql(getTestAssertValues(0,1,5));
 	});
-	it('should handle "" comparison {prop:{"REGEX":"/val$/"}}', function () {
+	it('should handle string representing a regexp comparison {prop:{"REGEX":"/val$/"}}', function () {
 		expect(getFilteredValues({name:{"REGEX":"/to$/"}})).to.eql(getTestAssertValues(0,1,5));
 	});
-	it('should handle "" comparison {prop:{"REGEX":/^val$/}}', function () {
+	it('should handle string representing a regexp comparison {prop:{"REGEX":/^val$/}}', function () {
 		expect(getFilteredValues({name:{"REGEX":/^(t.)\1$/}})).to.eql(getTestAssertValues(0,2,3));
 	});
 });
 describe("basic AND/OR/NOR testing", function () {
-	it('should handle "" comparison {prop:{"$regex":"val$"},prop:val}', function () {
+	it('should use "$and" comparison as default {prop:{"$regex":"val$"},prop:val}', function () {
 		expect(getFilteredValues({name:{$regex:"to$"},age:52})).to.eql(getTestAssertValues(5));
 	});
-	it('should handle "" comparison {$or:[{prop:val},{prop:val},...]}', function () {
+	it('should handle "$or" comparison {$or:[{prop:val},{prop:val},...]}', function () {
 		expect(getFilteredValues({$or:[{age:12},{age:52}]})).to.eql(getTestAssertValues(5,6,7));
 	});
-	it('should handle "" comparison {prop:{$regex:val},prop:{OR:[val,val]}}', function () {
+	it('should handle "OR" comparison {prop:{$regex:val},prop:{OR:[val,val]}}', function () {
 		expect(getFilteredValues({OR:{age:[52,18]}})).to.eql(getTestAssertValues(1,5));
 	});
-	it('should handle "" comparison {prop:{$regex:val},prop:{OR:[val,val]}}', function () {
+	it('should handle "NOR" comparison {prop:{$regex:val},prop:{NOR:[val,val]}}', function () {
 		expect(getFilteredValues({NOR:[{age:[52,18]},{name:'titi'}]})).to.eql(getTestAssertValues(0,2,4,6,7));
 	});
 });
