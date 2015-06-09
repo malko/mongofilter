@@ -1,4 +1,4 @@
-/*https://github.com/malko/jsonFilter brought to you under MIT licence by Jonathan Gotti version: 0.0.1*/
+/*https://github.com/malko/jsonFilter brought to you under MIT licence by Jonathan Gotti version: 1.0.0*/
 //jscs:disable
 /*jshint esnext:true, laxcomma:true, laxbreak:true*/
 'use strict';
