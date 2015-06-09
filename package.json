@@ -1,6 +1,6 @@
 {
   "name": "jsonFilter",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "mongoquery style for standard javascript collections",
   "main": "dist/commonjs/jsonFilter.js",
   "scripts": {
