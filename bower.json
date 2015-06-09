@@ -1,0 +1,30 @@
+{
+  "name": "jsonFilter",
+  "version": "0.0.1",
+  "homepage": "https://github.com/malko/jsonFilter",
+  "authors": [
+    "Jonathan Gotti <jgotti@jgotti.org>"
+  ],
+  "description": "mongoquery style for standard javascript collections",
+  "main": "dist/umd/jsonFilter.min.js",
+  "moduleType": [
+    "amd",
+    "es6",
+    "globals",
+    "node"
+  ],
+  "keywords": [
+    "query",
+    "mongoquery",
+    "collection",
+    "filter"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
