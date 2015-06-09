@@ -1,3 +1,4 @@
+/*https://github.com/malko/jsonFilter brought to you under MIT licence by Jonathan Gotti version: 0.0.1*/
 System.register([], function (_export) {
 	//jscs:disable
 	/*jshint esnext:true, laxcomma:true, laxbreak:true*/
@@ -118,7 +119,7 @@ System.register([], function (_export) {
 		execute: function () {
 			EXP_LIKE_PERCENT = /(^|[^%])%(?!%)/g // replace unescaped % chars
 			;
-			EXP_LIKE_UNDERSCORE = /(^|[^\\])(_+)/g // replace unescaped _ chars
+			EXP_LIKE_UNDERSCORE = /(^|[^\])(_+)/g // replace unescaped _ chars
 			;
 
 			EXP_LIKE_UNDERSCORE_REPLACE = function EXP_LIKE_UNDERSCORE_REPLACE(m, p, _) {

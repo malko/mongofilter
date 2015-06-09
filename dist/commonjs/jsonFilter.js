@@ -1,3 +1,4 @@
+/*https://github.com/malko/jsonFilter brought to you under MIT licence by Jonathan Gotti version: 0.0.1*/
 //jscs:disable
 /*jshint esnext:true, laxcomma:true, laxbreak:true*/
 'use strict';
@@ -8,7 +9,7 @@ Object.defineProperty(exports, '__esModule', {
 exports['default'] = jsonFilter;
 var EXP_LIKE_PERCENT = /(^|[^%])%(?!%)/g // replace unescaped % chars
 ,
-    EXP_LIKE_UNDERSCORE = /(^|[^\\])(_+)/g // replace unescaped _ chars
+    EXP_LIKE_UNDERSCORE = /(^|[^\])(_+)/g // replace unescaped _ chars
 ,
     EXP_LIKE_UNDERSCORE_REPLACE = function EXP_LIKE_UNDERSCORE_REPLACE(m, p, _) {
 	return p + new Array(_.length + 1).join('.');

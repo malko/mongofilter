@@ -6,7 +6,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "watch": "babel -w --modules umd -o dist/umd/jsonFilter.js js/*.es6",
-    "build": "babel -o dist/commonjs/jsonFilter.js js/*.es6 && babel --modules amd -o dist/amd/jsonFilter.js js/*.es6 && babel --modules system -o dist/system/jsonFilter.js js/*.es6 && babel --modules umd -o dist/umd/jsonFilter.js js/*.es6"
+    "build": "babel -o dist/commonjs/jsonFilter.js js/*.es6 && babel --modules amd -o dist/amd/jsonFilter.js js/*.es6 && babel --modules system -o dist/system/jsonFilter.js js/*.es6 && babel --modules umd -o dist/umd/jsonFilter.js js/*.es6",
+    "minify": "uglifyjs dist/amd/jsonFilter.js -mc > dist/amd/jsonFilter.min.js && uglifyjs dist/umd/jsonFilter.js -mc > dist/umd/jsonFilter.min.js && uglifyjs dist/system/jsonFilter.js -mc > dist/system/jsonFilter.min.js",
+    "banner": "for f in dist/*/*.js; do echo \"/*https://github.com/malko/jsonFilter brought to you under MIT licence by Jonathan Gotti version: $npm_package_version*/\n$(cat $f)\" > $f; done",
+    "postversion": ""
   },
   "repository": {
     "type": "git",
@@ -28,6 +31,8 @@
     "babel": "^5.4.7",
     "chai": "^3.0.0",
     "grunt": "^0.4.5",
-    "grunt-mocha-cli": "^1.13.0"
+    "grunt-mocha-cli": "^1.13.0",
+    "semver": "^4.3.6",
+    "uglifyjs": "^2.4.10"
   }
 }
