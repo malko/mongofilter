@@ -1,12 +1,12 @@
 {
-  "name": "jsonFilter",
-  "version": "1.0.0",
-  "homepage": "https://github.com/malko/jsonFilter",
+  "name": "mongofilter",
+  "version": "1.0.1",
+  "homepage": "https://github.com/malko/mongofilter",
   "authors": [
     "Jonathan Gotti <jgotti@jgotti.org>"
   ],
   "description": "mongoquery style for standard javascript collections",
-  "main": "dist/umd/jsonFilter.min.js",
+  "main": "dist/umd/mongofilter.min.js",
   "moduleType": [
     "amd",
     "es6",

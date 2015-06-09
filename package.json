@@ -1,20 +1,20 @@
 {
-  "name": "jsonFilter",
+  "name": "mongofilter",
   "version": "1.0.0",
   "description": "mongoquery style for standard javascript collections",
-  "main": "dist/commonjs/jsonFilter.js",
+  "main": "dist/commonjs/mongofilter.js",
   "scripts": {
     "test": "mocha tests/",
-    "watch": "babel -w --modules umd -o dist/umd/jsonFilter.js js/*.es6",
-    "build": "babel -o dist/commonjs/jsonFilter.js js/*.es6 && babel --modules amd -o dist/amd/jsonFilter.js js/*.es6 && babel --modules system -o dist/system/jsonFilter.js js/*.es6 && babel --modules umd -o dist/umd/jsonFilter.js js/*.es6",
-    "minify": "uglifyjs dist/amd/jsonFilter.js -mc > dist/amd/jsonFilter.min.js && uglifyjs dist/umd/jsonFilter.js -mc > dist/umd/jsonFilter.min.js && uglifyjs dist/system/jsonFilter.js -mc > dist/system/jsonFilter.min.js",
-    "banner": "for f in dist/*/*.js; do echo \"/*https://github.com/malko/jsonFilter brought to you under MIT licence by Jonathan Gotti version: $npm_package_version*/\n$(cat $f)\" > $f; done",
+    "watch": "babel -w --modules umd -o dist/umd/mongofilter.js js/*.es6",
+    "build": "babel -o dist/commonjs/mongofilter.js js/*.es6 && babel --modules amd -o dist/amd/mongofilter.js js/*.es6 && babel --modules system -o dist/system/mongofilter.js js/*.es6 && babel --modules umd -o dist/umd/mongofilter.js js/*.es6",
+    "minify": "uglifyjs dist/amd/mongofilter.js -mc > dist/amd/mongofilter.min.js && uglifyjs dist/umd/mongofilter.js -mc > dist/umd/mongofilter.min.js && uglifyjs dist/system/mongofilter.js -mc > dist/system/mongofilter.min.js",
+    "banner": "for f in dist/*/*.js; do echo \"/*https://github.com/malko/mongofilter brought to you under MIT licence by Jonathan Gotti version: $npm_package_version*/\n$(cat $f)\" > $f; done",
     "preversion": "npm run build && npm run minify && npm test",
     "postversion": "npm run banner"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/malko/jsonFilter.git"
+    "url": "https://github.com/malko/mongofilter.git"
   },
   "keywords": [
     "query",
@@ -25,9 +25,9 @@
   "author": "Jonathan Gotti",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/malko/jsonFilter/issues"
+    "url": "https://github.com/malko/mongofilter/issues"
   },
-  "homepage": "https://github.com/malko/jsonFilter",
+  "homepage": "https://github.com/malko/mongofilter",
   "devDependencies": {
     "babel": "^5.4.7",
     "chai": "^3.0.0",

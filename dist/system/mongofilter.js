@@ -1,12 +1,11 @@
-/*https://github.com/malko/jsonFilter brought to you under MIT licence by Jonathan Gotti version: 1.0.0*/
+/*https://github.com/malko/mongofilter brought to you under MIT licence by Jonathan Gotti version: 1.0.1*/
 System.register([], function (_export) {
-	//jscs:disable
 	/*jshint esnext:true, laxcomma:true, laxbreak:true*/
 	'use strict';
 
 	var EXP_LIKE_PERCENT, EXP_LIKE_UNDERSCORE, EXP_LIKE_UNDERSCORE_REPLACE, COMPARATORS, OPERATORS_MAP;
 
-	_export('default', jsonFilter);
+	_export('default', mongofilter);
 
 	/**
   * Handles AND OR and NOR operators
@@ -20,12 +19,12 @@ System.register([], function (_export) {
 		if (!Array.isArray(query)) {
 			// first run
 			Object.keys(query).forEach(function (operator) {
-				return res.push(new JsonFilter(query[operator], operator, property).filterItem(item));
+				return res.push(new Mongofilter(query[operator], operator, property).filterItem(item));
 			});
 		} else {
 			// real and or nor
 			query.forEach(function (clause, operator) {
-				return res.push(new JsonFilter(clause, operator, property).filterItem(item));
+				return res.push(new Mongofilter(clause, operator, property).filterItem(item));
 			});
 		}
 
@@ -51,7 +50,7 @@ System.register([], function (_export) {
 		} else if (query instanceof Array) {
 			res = COMPARATORS.IN(item[property], query);
 		} else {
-			res = new JsonFilter(query, 'AND', property).filterItem(item);
+			res = new Mongofilter(query, 'AND', property).filterItem(item);
 		}
 		return res;
 	}
@@ -78,8 +77,8 @@ System.register([], function (_export) {
 		return implicitFilter(item, query, operator);
 	}
 
-	//-- define a JsonFilter Object --//
-	function JsonFilter(clause) {
+	//-- define a Mongofilter Object --//
+	function Mongofilter(clause) {
 		var operator = arguments[1] === undefined ? 'AND' : arguments[1];
 		var propertyName = arguments[2] === undefined ? null : arguments[2];
 
@@ -100,12 +99,12 @@ System.register([], function (_export) {
 
 	//-- expose the module to the rest of the world --//
 
-	function jsonFilter(clause) {
+	function mongofilter(clause) {
 		typeof clause === 'string' && (clause = JSON.parse(clause));
 		if (!clause) {
 			throw 'Invalid clause';
 		}
-		var filter = new JsonFilter(clause);
+		var filter = new Mongofilter(clause);
 		var res = function res(item) {
 			return filter.filterItem(item);
 		};
@@ -198,7 +197,7 @@ System.register([], function (_export) {
 				'!like': 'UNLIKE',
 				'NOT LIKE': 'UNLIKE'
 			};
-			JsonFilter.prototype.filterCollection = function filterCollectionMethod(collection) {
+			Mongofilter.prototype.filterCollection = function filterCollectionMethod(collection) {
 				if (!collection) {
 					return [];
 				}
@@ -206,7 +205,7 @@ System.register([], function (_export) {
 			};
 
 			// allow comparators extensibility
-			jsonFilter.comparators = COMPARATORS;
+			mongofilter.comparators = COMPARATORS;
 		}
 	};
 });

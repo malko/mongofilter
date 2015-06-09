@@ -2,7 +2,7 @@
 
 var mocha = require('mocha');
 var expect = require('chai').expect;
-var jsonFilter = require('../dist/commonjs/jsonFilter.js');
+var mongofilter = require('../dist/commonjs/mongofilter.js');
 
 var testValues = [
 	{"id":1,"name":"toto","age":17}  //0
@@ -23,7 +23,7 @@ function getTestAssertValues(){
 }
 
 function getFilteredValues(filter){
-	return jsonFilter(filter).filter(testValues);
+	return mongofilter(filter).filter(testValues);
 }
 
 describe("basic equality filters", function() {

@@ -1,10 +1,10 @@
-# jsonFilter
+# mongofilter
 
 Filtering elements in collection based on json filters with a mongoQuery like syntax
 
 ## Basic usage:
 ```javascript
-var filter = jsonFilter({name:{$like: '%test%'}, age:12});
+var filter = mongofilter({name:{$like: '%test%'}, age:12});
 // filtering a complete collection
 filter.filter(collection);
 

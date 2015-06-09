@@ -1,4 +1,3 @@
-//jscs:disable
 /*jshint esnext:true, laxcomma:true, laxbreak:true*/
 "use strict";
 
@@ -73,9 +72,9 @@ function logicalFilter(item, query, operator, property) {
 	let res = [];
 
 	if (!Array.isArray(query)) { // first run
-		Object.keys(query).forEach((operator) => res.push(new JsonFilter(query[operator], operator, property).filterItem(item)));
+		Object.keys(query).forEach((operator) => res.push(new Mongofilter(query[operator], operator, property).filterItem(item)));
 	} else { // real and or nor
-		query.forEach((clause, operator) => res.push(new JsonFilter(clause, operator, property).filterItem(item)));
+		query.forEach((clause, operator) => res.push(new Mongofilter(clause, operator, property).filterItem(item)));
 	}
 
 	if (operator === "OR") {
@@ -100,7 +99,7 @@ function implicitFilter(item, query, property) {
 	} else if( query instanceof Array ) {
 		res = COMPARATORS.IN(item[property], query);
 	} else {
-		res = new JsonFilter(query, 'AND', property).filterItem(item);
+		res = new Mongofilter(query, 'AND', property).filterItem(item);
 	}
 	return res;
 }
@@ -128,8 +127,8 @@ function filterItem(item, query, operator, property) {
 }
 
 
-//-- define a JsonFilter Object --//
-function JsonFilter(clause, operator = 'AND', propertyName = null) {
+//-- define a Mongofilter Object --//
+function Mongofilter(clause, operator = 'AND', propertyName = null) {
 	// console.log('propertyName', propertyName)
 	OPERATORS_MAP[operator] && (operator = OPERATORS_MAP[operator]);
 
@@ -145,7 +144,7 @@ function JsonFilter(clause, operator = 'AND', propertyName = null) {
 	};
 }
 
-JsonFilter.prototype.filterCollection = function filterCollectionMethod(collection) {
+Mongofilter.prototype.filterCollection = function filterCollectionMethod(collection) {
 	if (! collection) {
 		return [];
 	}
@@ -153,12 +152,12 @@ JsonFilter.prototype.filterCollection = function filterCollectionMethod(collecti
 };
 
 //-- expose the module to the rest of the world --//
-export default function jsonFilter (clause) {
+export default function mongofilter (clause) {
 	(typeof clause === 'string' ) && (clause = JSON.parse(clause));
 	if(! clause ){
 		throw ('Invalid clause');
 	}
-	let filter = new JsonFilter(clause);
+	let filter = new Mongofilter(clause);
 	let res = (item) => filter.filterItem(item);
 	res.filter = filter.filterCollection;
 	res.filterItem = filter.filterItem;
@@ -166,4 +165,4 @@ export default function jsonFilter (clause) {
 }
 
 // allow comparators extensibility
-jsonFilter.comparators = COMPARATORS;
+mongofilter.comparators = COMPARATORS;

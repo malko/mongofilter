@@ -1,12 +1,11 @@
-/*https://github.com/malko/jsonFilter brought to you under MIT licence by Jonathan Gotti version: 1.0.0*/
-//jscs:disable
+/*https://github.com/malko/mongofilter brought to you under MIT licence by Jonathan Gotti version: 1.0.1*/
 /*jshint esnext:true, laxcomma:true, laxbreak:true*/
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
 	value: true
 });
-exports['default'] = jsonFilter;
+exports['default'] = mongofilter;
 var EXP_LIKE_PERCENT = /(^|[^%])%(?!%)/g // replace unescaped % chars
 ,
     EXP_LIKE_UNDERSCORE = /(^|[^\\])(_+)/g // replace unescaped _ char (must double antislash else will break in babel generated version)
@@ -99,12 +98,12 @@ function logicalFilter(item, query, operator, property) {
 	if (!Array.isArray(query)) {
 		// first run
 		Object.keys(query).forEach(function (operator) {
-			return res.push(new JsonFilter(query[operator], operator, property).filterItem(item));
+			return res.push(new Mongofilter(query[operator], operator, property).filterItem(item));
 		});
 	} else {
 		// real and or nor
 		query.forEach(function (clause, operator) {
-			return res.push(new JsonFilter(clause, operator, property).filterItem(item));
+			return res.push(new Mongofilter(clause, operator, property).filterItem(item));
 		});
 	}
 
@@ -130,7 +129,7 @@ function implicitFilter(item, query, property) {
 	} else if (query instanceof Array) {
 		res = COMPARATORS.IN(item[property], query);
 	} else {
-		res = new JsonFilter(query, 'AND', property).filterItem(item);
+		res = new Mongofilter(query, 'AND', property).filterItem(item);
 	}
 	return res;
 }
@@ -157,8 +156,8 @@ function filterItem(item, query, operator, property) {
 	return implicitFilter(item, query, operator);
 }
 
-//-- define a JsonFilter Object --//
-function JsonFilter(clause) {
+//-- define a Mongofilter Object --//
+function Mongofilter(clause) {
 	var operator = arguments[1] === undefined ? 'AND' : arguments[1];
 	var propertyName = arguments[2] === undefined ? null : arguments[2];
 
@@ -177,7 +176,7 @@ function JsonFilter(clause) {
 	};
 }
 
-JsonFilter.prototype.filterCollection = function filterCollectionMethod(collection) {
+Mongofilter.prototype.filterCollection = function filterCollectionMethod(collection) {
 	if (!collection) {
 		return [];
 	}
@@ -186,12 +185,12 @@ JsonFilter.prototype.filterCollection = function filterCollectionMethod(collecti
 
 //-- expose the module to the rest of the world --//
 
-function jsonFilter(clause) {
+function mongofilter(clause) {
 	typeof clause === 'string' && (clause = JSON.parse(clause));
 	if (!clause) {
 		throw 'Invalid clause';
 	}
-	var filter = new JsonFilter(clause);
+	var filter = new Mongofilter(clause);
 	var res = function res(item) {
 		return filter.filterItem(item);
 	};
@@ -201,5 +200,5 @@ function jsonFilter(clause) {
 }
 
 // allow comparators extensibility
-jsonFilter.comparators = COMPARATORS;
+mongofilter.comparators = COMPARATORS;
 module.exports = exports['default'];

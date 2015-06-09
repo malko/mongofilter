@@ -1,10 +1,9 @@
-/*https://github.com/malko/jsonFilter brought to you under MIT licence by Jonathan Gotti version: 1.0.0*/
+/*https://github.com/malko/mongofilter brought to you under MIT licence by Jonathan Gotti version: 1.0.1*/
 define(['exports', 'module'], function (exports, module) {
-	//jscs:disable
 	/*jshint esnext:true, laxcomma:true, laxbreak:true*/
 	'use strict';
 
-	module.exports = jsonFilter;
+	module.exports = mongofilter;
 	var EXP_LIKE_PERCENT = /(^|[^%])%(?!%)/g // replace unescaped % chars
 	,
 	    EXP_LIKE_UNDERSCORE = /(^|[^\\])(_+)/g // replace unescaped _ char (must double antislash else will break in babel generated version)
@@ -97,12 +96,12 @@ define(['exports', 'module'], function (exports, module) {
 		if (!Array.isArray(query)) {
 			// first run
 			Object.keys(query).forEach(function (operator) {
-				return res.push(new JsonFilter(query[operator], operator, property).filterItem(item));
+				return res.push(new Mongofilter(query[operator], operator, property).filterItem(item));
 			});
 		} else {
 			// real and or nor
 			query.forEach(function (clause, operator) {
-				return res.push(new JsonFilter(clause, operator, property).filterItem(item));
+				return res.push(new Mongofilter(clause, operator, property).filterItem(item));
 			});
 		}
 
@@ -128,7 +127,7 @@ define(['exports', 'module'], function (exports, module) {
 		} else if (query instanceof Array) {
 			res = COMPARATORS.IN(item[property], query);
 		} else {
-			res = new JsonFilter(query, 'AND', property).filterItem(item);
+			res = new Mongofilter(query, 'AND', property).filterItem(item);
 		}
 		return res;
 	}
@@ -155,8 +154,8 @@ define(['exports', 'module'], function (exports, module) {
 		return implicitFilter(item, query, operator);
 	}
 
-	//-- define a JsonFilter Object --//
-	function JsonFilter(clause) {
+	//-- define a Mongofilter Object --//
+	function Mongofilter(clause) {
 		var operator = arguments[1] === undefined ? 'AND' : arguments[1];
 		var propertyName = arguments[2] === undefined ? null : arguments[2];
 
@@ -175,7 +174,7 @@ define(['exports', 'module'], function (exports, module) {
 		};
 	}
 
-	JsonFilter.prototype.filterCollection = function filterCollectionMethod(collection) {
+	Mongofilter.prototype.filterCollection = function filterCollectionMethod(collection) {
 		if (!collection) {
 			return [];
 		}
@@ -184,12 +183,12 @@ define(['exports', 'module'], function (exports, module) {
 
 	//-- expose the module to the rest of the world --//
 
-	function jsonFilter(clause) {
+	function mongofilter(clause) {
 		typeof clause === 'string' && (clause = JSON.parse(clause));
 		if (!clause) {
 			throw 'Invalid clause';
 		}
-		var filter = new JsonFilter(clause);
+		var filter = new Mongofilter(clause);
 		var res = function res(item) {
 			return filter.filterItem(item);
 		};
@@ -199,5 +198,5 @@ define(['exports', 'module'], function (exports, module) {
 	}
 
 	// allow comparators extensibility
-	jsonFilter.comparators = COMPARATORS;
+	mongofilter.comparators = COMPARATORS;
 });
