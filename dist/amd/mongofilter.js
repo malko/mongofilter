@@ -1,4 +1,4 @@
-/*https://github.com/malko/mongofilter brought to you under MIT licence by Jonathan Gotti version: 1.0.3*/
+/*https://github.com/malko/mongofilter brought to you under MIT licence by J.Gotti & A.Gibrat version: 1.0.4*/
 define('mongofilter', ['exports', 'module'], function (exports, module) {
 	/*jshint esnext:true, laxcomma:true, laxbreak:true*/
 	'use strict';
@@ -15,6 +15,7 @@ define('mongofilter', ['exports', 'module'], function (exports, module) {
 		return new RegExp('^' + pattern.replace(EXP_LIKE_PERCENT, '$1.*').replace(EXP_LIKE_UNDERSCORE, EXP_LIKE_UNDERSCORE_REPLACE) + '$');
 	},
 	    EXP_REGEXP = /^\/([\s\S]*)\/([igm]*)$/,
+	    EXP_PRIMITIVE = /^(string|number|boolean)$/,
 	    REGEXP_PARSE = function REGEXP_PARSE(pattern) {
 		if (typeof pattern === 'string') {
 			(function () {
@@ -27,9 +28,13 @@ define('mongofilter', ['exports', 'module'], function (exports, module) {
 		}
 		return pattern;
 	},
-	    EXP_PRIMITIVE = /^(string|number|boolean)$/,
 	    IS_PRIMITIVE = function IS_PRIMITIVE(value) {
-		return value == null || EXP_PRIMITIVE.test(typeof value);
+		return value == null || EXP_PRIMITIVE.test(typeof value) //jshint ignore:line
+		;
+	},
+	    IS_TESTABLE = function IS_TESTABLE(value) {
+		return value != null //jshint ignore:line
+		;
 	},
 	    COMPARATORS = {
 		$gt: function $gt(a, b) {
@@ -47,56 +52,23 @@ define('mongofilter', ['exports', 'module'], function (exports, module) {
 		$eq: function $eq(a, b) {
 			return a === b;
 		},
-		$neq: function $neq(a, b) {
+		$ne: function $ne(a, b) {
 			return a !== b;
 		},
-<<<<<<< HEAD
-		REGEX: function REGEX(a, b) {
-			if (a === undefined) {
-				return false;
-			}
-			if (typeof b === 'string') {
-				(function () {
-					var flag = undefined,
-					    exp = undefined;
-					b.replace(/^\/([\s\S]*)\/([igm])?/, function (m, e, f) {
-						exp = e;flag = f;
-					});
-					exp || (exp = b);
-					b = flag ? new RegExp(exp, flag) : new RegExp(exp);
-				})();
-			}
-			return !!a.match(b);
-||||||| merged common ancestors
-		REGEX: function REGEX(a, b) {
-			if (typeof b === 'string') {
-				(function () {
-					var flag = undefined,
-					    exp = undefined;
-					b.replace(/^\/([\s\S]*)\/([igm])?/, function (m, e, f) {
-						exp = e;flag = f;
-					});
-					exp || (exp = b);
-					b = flag ? new RegExp(exp, flag) : new RegExp(exp);
-				})();
-			}
-			return !!a.match(b);
-=======
 		$regex: function $regex(a, b) {
-			return REGEXP_PARSE(b).test(a);
->>>>>>> only keep mongo notation for comparators & logical operators + various improvements
+			return IS_TESTABLE(a) && REGEXP_PARSE(b).test(a);
 		},
 		$like: function $like(a, b) {
-			return REGEXP_LIKE(b).test(a);
+			return IS_TESTABLE(a) && REGEXP_LIKE(b).test(a);
 		},
 		$nlike: function $nlike(a, b) {
-			return !REGEXP_LIKE(b).test(a);
+			return !COMPARATORS.$like(a, b);
 		},
 		$in: function $in(a, b) {
 			return !! ~b.indexOf(a);
 		},
 		$nin: function $nin(a, b) {
-			return ! ~b.indexOf(a);
+			return !COMPARATORS.$in(a, b);
 		}
 	},
 	    LOGICS = {
@@ -104,9 +76,9 @@ define('mongofilter', ['exports', 'module'], function (exports, module) {
 		$nor: 'some',
 		$and: 'every'
 	},
-	    ALIAS = {
+	    ALIASES = {
 		$e: '$eq',
-		$ne: '$neq'
+		$neq: '$ne'
 	};
 
 	/**
@@ -115,11 +87,16 @@ define('mongofilter', ['exports', 'module'], function (exports, module) {
   * @return {boolean}
   */
 	function logicalOperation(item, query, operator, property) {
-		var result = Array.isArray(query) ? query[LOGICS[operator]](function (query, operator) {
-			return getPredicate(query, operator, property)(item);
-		}) : Object.keys(query)[LOGICS[operator]](function (operator) {
-			return getPredicate(query[operator], operator, property)(item);
-		});
+		var result = undefined;
+		if (Array.isArray(query)) {
+			result = query[LOGICS[operator]](function (query, operator) {
+				return getPredicate(query, operator, property)(item);
+			});
+		} else {
+			result = Object.keys(query)[LOGICS[operator]](function (operator) {
+				return getPredicate(query[operator], operator, property)(item);
+			});
+		}
 		return operator === '$nor' ? !result : result;
 	}
 
@@ -131,13 +108,15 @@ define('mongofilter', ['exports', 'module'], function (exports, module) {
   * @return {boolean}           does item property match query
   */
 	function implicitCompare(item, query, property) {
+		var res = true;
 		if (IS_PRIMITIVE(query)) {
-			return COMPARATORS.$eq(item[property], query);
+			res = COMPARATORS.$eq(item[property], query);
+		} else if (Array.isArray(query)) {
+			res = COMPARATORS.$in(item[property], query);
+		} else {
+			res = getPredicate(query, '$and', property)(item);
 		}
-		if (Array.isArray(query)) {
-			return COMPARATORS.$in(item[property], query);
-		}
-		return getPredicate(query, '$and', property)(item);
+		return res;
 	}
 
 	/**
@@ -147,8 +126,9 @@ define('mongofilter', ['exports', 'module'], function (exports, module) {
   * @param  {String}  property  property name to test against query
   * @return {Function}          filter predicate function
   */
-	function getPredicate(query, _x, property) {
-		var operator = arguments[1] === undefined ? '$and' : arguments[1];
+	function getPredicate(query, operator, property) {
+		//jshint ignore:line
+		operator = ALIASES[operator] || operator || '$and';
 
 		return function (item) {
 			if (typeof item === 'string') {
@@ -158,7 +138,6 @@ define('mongofilter', ['exports', 'module'], function (exports, module) {
 					return false;
 				}
 			}
-			operator = ALIAS[operator] || operator;
 			if (operator in LOGICS) {
 				return logicalOperation(item, query, operator, property);
 			}
@@ -168,6 +147,8 @@ define('mongofilter', ['exports', 'module'], function (exports, module) {
 			return implicitCompare(item, query, operator);
 		};
 	}
+
+	//-- expose the module to the rest of the world --//
 
 	function mongofilter(query) {
 		if (typeof query === 'string') {
@@ -180,9 +161,11 @@ define('mongofilter', ['exports', 'module'], function (exports, module) {
 		predicate.filter = function (collection) {
 			return collection && collection.filter ? collection.filter(predicate) : [];
 		};
+		predicate.filterItem = predicate;
 		return predicate;
 	}
 
-	mongofilter.alias = ALIAS;
+	// allow comparators and aliases extensibility
+	mongofilter.aliases = ALIASES;
 	mongofilter.comparators = COMPARATORS;
 });

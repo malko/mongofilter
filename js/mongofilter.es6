@@ -15,8 +15,8 @@ const EXP_LIKE_PERCENT = /(^|[^%])%(?!%)/g  // replace unescaped % chars
 		}
 		return pattern;
 	}
-	, IS_PRIMITIVE = (value) => value == null || EXP_PRIMITIVE.test(typeof value)
-	, IS_TESTABLE = (value) => value !== null && value !== undefined
+	, IS_PRIMITIVE = (value) => value == null || EXP_PRIMITIVE.test(typeof value) //jshint ignore:line
+	, IS_TESTABLE = (value) => value != null //jshint ignore:line
 	, COMPARATORS = {
 		$gt: (a, b) => a > b
 		, $gte: (a, b) => a >= b
@@ -82,7 +82,7 @@ function implicitCompare(item, query, property) {
  * @param  {String}  property  property name to test against query
  * @return {Function}          filter predicate function
  */
-function getPredicate(query, operator, property) {
+function getPredicate(query, operator, property) { //jshint ignore:line
 	operator = ALIASES[operator] || operator || '$and';
 
 	return (item) => {

@@ -5,10 +5,10 @@
   "main": "dist/commonjs/mongofilter.js",
   "scripts": {
     "test": "mocha tests/",
-    "watch": "babel -w --modules umd -o dist/umd/mongofilter.js js/*.es6",
+    "watch": "babel -w -o dist/commonjs/mongofilter.js js/*.es6",
     "build": "babel -o dist/commonjs/mongofilter.js js/*.es6 && babel --modules amd --module-id mongofilter -o dist/amd/mongofilter.js js/*.es6 && babel --modules system --module-id mongofilter -o dist/system/mongofilter.js js/*.es6 && babel --modules umd --module-id mongofilter -o dist/umd/mongofilter.js js/*.es6",
     "minify": "uglifyjs dist/amd/mongofilter.js -mc > dist/amd/mongofilter.min.js && uglifyjs dist/umd/mongofilter.js -mc > dist/umd/mongofilter.min.js && uglifyjs dist/system/mongofilter.js -mc > dist/system/mongofilter.min.js",
-    "banner": "for f in dist/*/*.js; do echo \"/*https://github.com/malko/mongofilter brought to you under MIT licence by Jonathan Gotti version: $npm_package_version*/\n$(cat $f)\" > $f; done",
+    "banner": "for f in dist/*/*.js; do echo \"/*https://github.com/malko/mongofilter brought to you under MIT licence by J.Gotti & A.Gibrat version: $npm_package_version*/\n$(cat $f)\" > $f; done",
     "preversion": "npm run build && npm run minify && npm test",
     "postversion": "npm run banner"
   },
@@ -22,7 +22,7 @@
     "collection",
     "filter"
   ],
-  "author": "Jonathan Gotti",
+  "author": "Jonathan Gotti <jgotti@jgotti.org>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/malko/mongofilter/issues"
