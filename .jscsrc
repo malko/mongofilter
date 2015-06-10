@@ -28,7 +28,7 @@
 	"requireSpacesInConditionalExpression": true,
 	"requireMultipleVarDecl": "onevar",
 	"requireBlocksOnNewline": 1,
-	"requireCommaBeforeLineBreak": true,
+	"requireCommaBeforeLineBreak": false,
 	"requireSpaceBeforeBinaryOperators": true,
 	"requireSpaceAfterBinaryOperators": true,
 	"requireCamelCaseOrUpperCaseIdentifiers": true,
