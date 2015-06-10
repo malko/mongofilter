@@ -1,10 +1,11 @@
-/*jshint esnext:true, laxcomma:true, laxbreak:true*/
-"use strict";
+/*jshint esnext:true, laxcomma:true, laxbreak:true, bitwise:false*/
+/*global JSON*/
+'use strict';
 
 const EXP_LIKE_PERCENT = /(^|[^%])%(?!%)/g  // replace unescaped % chars
-	, EXP_LIKE_UNDERSCORE = /(^|[^\\\\])(_+)/g  // replace unescaped _ char (must double antislash else will break in babel generated version)
+	, EXP_LIKE_UNDERSCORE = /(^|[^\\\\])(_+)/g  // replace unescaped _ char (must double antislash or will break in babel generated version)
 	, EXP_LIKE_UNDERSCORE_REPLACE = (m, p, _) => p + (new Array(_.length + 1)).join('.')
-	, REGEXP_LIKE = (pattern) => new RegExp('^' + pattern.replace(EXP_LIKE_PERCENT, '$1.*').replace(EXP_LIKE_UNDERSCORE, EXP_LIKE_UNDERSCORE_REPLACE) + '$')
+	, REGEXP_LIKE = (pattern) => new RegExp('^' + pattern.replace(EXP_LIKE_PERCENT, '$1.*').replace(EXP_LIKE_UNDERSCORE, EXP_LIKE_UNDERSCORE_REPLACE) + '$') //jshint ignore:line
 	, EXP_REGEXP = /^\/([\s\S]*)\/([igm]*)$/
 	, EXP_PRIMITIVE = /^(string|number|boolean)$/
 	, REGEXP_PARSE = (pattern) => {
@@ -95,12 +96,12 @@ function getPredicate(query, operator, property) { //jshint ignore:line
 		}
 		if (operator in LOGICS) {
 			return logicalOperation(item, query, operator, property);
-}
+		}
 		if (operator in COMPARATORS) {
 			return COMPARATORS[operator](item[property], query);
-	}
+		}
 		return implicitCompare(item, query, operator);
-};
+	};
 }
 
 //-- expose the module to the rest of the world --//

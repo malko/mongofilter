@@ -1,6 +1,7 @@
 #!/usr/bin/env nodejs
-
-var mocha = require('mocha');
+/*global describe, it*/
+'use strict';
+var mocha = require('mocha'); // jshint ignore:line
 var expect = require('chai').expect;
 var mongofilter = require('../dist/commonjs/mongofilter.js');
 
