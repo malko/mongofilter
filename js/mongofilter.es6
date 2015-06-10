@@ -4,168 +4,119 @@
 const EXP_LIKE_PERCENT = /(^|[^%])%(?!%)/g  // replace unescaped % chars
 	, EXP_LIKE_UNDERSCORE = /(^|[^\\\\])(_+)/g  // replace unescaped _ char (must double antislash else will break in babel generated version)
 	, EXP_LIKE_UNDERSCORE_REPLACE = (m, p, _) => p + (new Array(_.length + 1)).join('.')
-	, COMPARATORS = {
-		'>': function (a, b) { return a > b;}
-		, '>=': function (a, b) { return a >= b;}
-		, '<': function (a, b) { return a < b;}
-		, '<=': function (a, b) { return a <= b;}
-		, '=': function (a, b) { return a === b;}
-		, '!=': function (a, b) { return a !== b;}
-		, REGEX: function (a, b) {
-			if (a === undefined) {
-				return false;
-			}
-			if (typeof b === 'string') {
-				let flag, exp;
-				b.replace(/^\/([\s\S]*)\/([igm])?/, (m, e, f) => { exp = e; flag = f;});
-				exp || (exp = b);
-				b = flag ? new RegExp(exp, flag): new RegExp(exp);
-			}
-			return !!a.match(b);
+	, REGEXP_LIKE = (pattern) => new RegExp('^' + pattern.replace(EXP_LIKE_PERCENT, '$1.*').replace(EXP_LIKE_UNDERSCORE, EXP_LIKE_UNDERSCORE_REPLACE) + '$')
+	, EXP_REGEXP = /^\/([\s\S]*)\/([igm]*)$/
+	, EXP_PRIMITIVE = /^(string|number|boolean)$/
+	, REGEXP_PARSE = (pattern) => {
+		if (typeof pattern === 'string') {
+			let flag;
+			pattern.replace(EXP_REGEXP, (m, e, f) => { pattern = e; flag = f;});
+			pattern = flag ? new RegExp(pattern, flag) : new RegExp(pattern);
 		}
-		, LIKE: function (a, b) {
-			var exp = new RegExp('^' + b.replace(EXP_LIKE_PERCENT, '$1.*').replace(EXP_LIKE_UNDERSCORE, EXP_LIKE_UNDERSCORE_REPLACE) + '$');
-			return !!((a || a===0) && a.toString().match(exp));
-		}
-		, UNLIKE: function (a, b) {
-			return !COMPARATORS.LIKE(a, b);
-		}
-		, IN: function (a, b) {
-			return !!~b.indexOf(a);
-		}
-		, NOTIN: function (a, b) {
-			return !~b.indexOf(a);
-		}
+		return pattern;
 	}
-	, OPERATORS_MAP = {
-		$gt:'>'
-		, $gte:'>='
-		, $lt:'<'
-		, $lte:'<='
-		, $or:'OR'
-		, '||':'OR'
-		, '$nor':'NOR'
-		, $and:'AND'
-		, '&&':'AND'
-		, $e:'='
-		, $eq:'='
-		, '<>':'!='
-		, $ne:'!='
-		, '!e':'!='
-		, $in :'IN'
-		, '!in':'NOTIN'
-		, $nin:'NOTIN'
-		, 'NOT IN': 'NOTIN'
-		, $regex:'REGEX'
-		, $like:'LIKE'
-		, $nlike:'UNLIKE'
-		, '!like':'UNLIKE'
-		, 'NOT LIKE': 'UNLIKE'
+	, IS_PRIMITIVE = (value) => value == null || EXP_PRIMITIVE.test(typeof value) //jshint ignore:line
+	, IS_TESTABLE = (value) => value != null //jshint ignore:line
+	, COMPARATORS = {
+		$gt: (a, b) => a > b
+		, $gte: (a, b) => a >= b
+		, $lt: (a, b) => a < b
+		, $lte: (a, b) => a <= b
+		, $eq: (a, b) => a === b
+		, $ne: (a, b) => a !== b
+		, $regex: (a, b) => IS_TESTABLE(a) && REGEXP_PARSE(b).test(a)
+		, $like: (a, b) => IS_TESTABLE(a) && REGEXP_LIKE(b).test(a)
+		, $nlike: (a, b) => !COMPARATORS.$like(a, b)
+		, $in: (a, b) => !!~b.indexOf(a)
+		, $nin: (a, b) => !COMPARATORS.$in(a, b)
+	}
+	, LOGICS = {
+		$or: 'some',
+		$nor: 'some',
+		$and: 'every'
+	}
+	, ALIASES = {
+		$e:'$eq'
+		, $neq:'$ne'
 	}
 ;
 
-
 /**
- * Handles AND OR and NOR operators
+ * Handles AND, OR and NOR operators
  * @internal
  * @return {boolean}
  */
-function logicalFilter(item, query, operator, property) {
-
-	let res = [];
-
-	if (!Array.isArray(query)) { // first run
-		Object.keys(query).forEach((operator) => res.push(new Mongofilter(query[operator], operator, property).filterItem(item)));
-	} else { // real and or nor
-		query.forEach((clause, operator) => res.push(new Mongofilter(clause, operator, property).filterItem(item)));
-	}
-
-	if (operator === "OR") {
-		res = !!(~res.indexOf(true));
-	} else if(operator ==='NOR') {
-		res = !(~res.indexOf(true));
+function logicalOperation(item, query, operator, property) {
+	let result;
+	if (Array.isArray(query)) {
+		result = query[LOGICS[operator]]((query, operator) => getPredicate(query, operator, property)(item));
 	} else {
-		res = !(~res.indexOf(false));
+		result = Object.keys(query)[LOGICS[operator]]((operator) => getPredicate(query[operator], operator, property)(item));
 	}
-
-	return res;
+	return operator === '$nor' ? !result : result;
 }
 
 /**
- * Handles implicit filters ({prop: value} and so on)
- * @return {boolean}
+ * Handles implicit compare ({prop: value} eg. prop === value, etc.)
+ * @param  {Object}  item      collection's item to filter
+ * @param  {*}       query     mongo query descriptor
+ * @param  {String}  property  property name to test against query
+ * @return {boolean}           does item property match query
  */
-function implicitFilter(item, query, property) {
+function implicitCompare(item, query, property) {
 	let res = true;
-	if ((typeof query).match(/string|number|boolean/)) {
-		res = COMPARATORS['='](item[property], query);
-	} else if( query instanceof Array ) {
-		res = COMPARATORS.IN(item[property], query);
+	if (IS_PRIMITIVE(query)) {
+		res = COMPARATORS.$eq(item[property], query);
+	} else 	if (Array.isArray(query)) {
+		res = COMPARATORS.$in(item[property], query);
 	} else {
-		res = new Mongofilter(query, 'AND', property).filterItem(item);
+		res = getPredicate(query, '$and', property)(item);
 	}
 	return res;
 }
 
 /**
  * Perform item filtering
- * @param  {*} item     item to filter
- * @param  {*} query    the query descriptor
- * @param  {string} operator current processing operator
- * @param  {string} property the property name to test
- * @return {boolean} whether the item was filtered or not
+ * @param  {*}       query     mongo query descriptor
+ * @param  {String}  operator  logic operator between query root clauses
+ * @param  {String}  property  property name to test against query
+ * @return {Function}          filter predicate function
  */
-function filterItem(item, query, operator, property) {
+function getPredicate(query, operator, property) { //jshint ignore:line
+	operator = ALIASES[operator] || operator || '$and';
 
-	if (operator in COMPARATORS) {
-		return COMPARATORS[operator](item[property], query);
-	}
-
-	if (operator === 'AND' || operator === 'NOR' || operator === 'OR') {
-		return logicalFilter(item, query, operator, property);
-	}
-
-	// in this case the operator is the property we wana test value against
-	return implicitFilter(item, query, operator);
-}
-
-
-//-- define a Mongofilter Object --//
-function Mongofilter(clause, operator = 'AND', propertyName = null) {
-	// console.log('propertyName', propertyName)
-	OPERATORS_MAP[operator] && (operator = OPERATORS_MAP[operator]);
-
-	this.filterItem = function filterItemMethod(item) {
-		if( typeof item === 'string'){
-			try{
+	return (item) => {
+		if (typeof item === 'string') {
+			try {
 				item = JSON.parse(item);
-			} catch(e) {
+			} catch (e) {
 				return false;
 			}
 		}
-		return filterItem(item, clause, operator, propertyName);
-	};
+		if (operator in LOGICS) {
+			return logicalOperation(item, query, operator, property);
 }
-
-Mongofilter.prototype.filterCollection = function filterCollectionMethod(collection) {
-	if (! collection) {
-		return [];
+		if (operator in COMPARATORS) {
+			return COMPARATORS[operator](item[property], query);
 	}
-	return collection.filter(this.filterItem);
+		return implicitCompare(item, query, operator);
 };
+}
 
 //-- expose the module to the rest of the world --//
-export default function mongofilter (clause) {
-	(typeof clause === 'string' ) && (clause = JSON.parse(clause));
-	if(! clause ){
-		throw ('Invalid clause');
+export default function mongofilter (query) {
+	if (typeof query === 'string') {
+		query = JSON.parse(query);
 	}
-	let filter = new Mongofilter(clause);
-	let res = (item) => filter.filterItem(item);
-	res.filter = filter.filterCollection;
-	res.filterItem = filter.filterItem;
-	return res;
+	if (!query || IS_PRIMITIVE(query)) {
+		throw new TypeError('Invalid query');
+	}
+	let predicate = getPredicate(query);
+	predicate.filter = (collection) => collection && collection.filter ? collection.filter(predicate) : [];
+	predicate.filterItem = predicate;
+	return predicate;
 }
 
-// allow comparators extensibility
+// allow comparators and aliases extensibility
+mongofilter.aliases = ALIASES;
 mongofilter.comparators = COMPARATORS;
