@@ -7,6 +7,8 @@ Filtering elements in collection based on json filters with a mongoQuery like sy
 var filter = mongofilter({name:{$like: '%test%'}, age:12});
 // filtering a complete collection
 filter.filter(collection);
+// or alternatively
+collection.filter(filter);
 
 // check a single item match against given filter
 filter.filterItem(item); // return true or false
@@ -14,29 +16,29 @@ filter.filterItem(item); // return true or false
 
 ## Comparison operators
 
-### Greater than: _$gt, >_
-### Greater Equal than: _$gte, >=_
-### Less than: _$lt, <_
-### Less Equal than: _$lte, <=_
-### Strict equality: _$e, $eq, =_
-### Strict inequality: _$ne, !$e, <>, !=_
+### Greater than: _$gt_
+### Greater Equal than: _$gte_
+### Less than: _$lt_
+### Less Equal than: _$lte_
+### Strict equality: _$eq_
+### Strict inequality: _$ne_
 
 
 ## Text matching operators
 
-### Like: _$like, LIKE_
-### Not like: _$nlike, !$like, NOT LIKE, UNLIKE_
-### RegExp: _$regex, REGEX_
+### Like: _$like_
+### Not like: _$nlike_
+### RegExp: _$regex_
 
 
 ## Subset operator
 
-### In: _$in, IN_
-### Not in: _$nin, !$in, NOT IN, NOTIN_
+### In: _$in_
+### Not in: _$nin_
 
 
 ## Logical operators
 
-### And: _$and, &&, AND_
-### Or: _$or, ||, OR_
-### Nor: _$nor, NOR_
+### And: _$and_
+### Or: _$or_
+### Nor: _$nor_
