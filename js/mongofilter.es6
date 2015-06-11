@@ -32,9 +32,9 @@ const EXP_LIKE_PERCENT = /(^|[^%])%(?!%)/g  // replace unescaped % chars
 		, $nin: (a, b) => !COMPARATORS.$in(a, b)
 	}
 	, LOGICS = {
-		$or: 'some',
-		$nor: 'some',
-		$and: 'every'
+		$or: 'some'
+		, $nor: 'every'
+		, $and: 'every'
 	}
 	, ALIASES = {
 		$e:'$eq'

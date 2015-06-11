@@ -134,9 +134,11 @@ describe("basic AND/OR/NOR testing", function () {
 	});
 
 	it('should handle "$nor" comparison {$nor:[{prop:val},{prop:val},...]}', function () {
-		expect(getFilteredValues({$nor:[{age:[52,18]},{name:'titi'}]})).to.eql(getTestAssertValues(0,2,4,6,7));
+		expect(getFilteredValues({$nor:[{age:[52,18]},{name:'tito'}]})).to.eql(getTestAssertValues(0,2,3,4,5,6,7));
+		expect(getFilteredValues({$nor:[{id:7},{name:'tita'}]})).to.eql(getTestAssertValues(0,1,2,3,4,5,7));
 	});
 	it('should handle "$nor" comparison {$nor:{prop:val,prop:val}}', function () {
-		expect(getFilteredValues({$nor:{age:[52,18],name:'titi'}})).to.eql(getTestAssertValues(0,2,4,6,7));
+		expect(getFilteredValues({$nor:{age:[52,18],name:'tito'}})).to.eql(getTestAssertValues(0,2,3,4,5,6,7));
+		expect(getFilteredValues({$nor:{id:7, name:'tita'}})).to.eql(getTestAssertValues(0,1,2,3,4,5,7));
 	});
 });
