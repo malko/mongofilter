@@ -1,30 +1,33 @@
-/*https://github.com/malko/mongofilter brought to you under MIT licence by J.Gotti & A.Gibrat version: 1.0.4*/
+/*https://github.com/malko/mongofilter brought to you under MIT licence by J.Gotti & A.Gibrat version: 1.0.5*/
 (function (global, factory) {
 	if (typeof define === 'function' && define.amd) {
 		define('mongofilter', ['exports', 'module'], factory);
 	} else if (typeof exports !== 'undefined' && typeof module !== 'undefined') {
 		factory(exports, module);
 	} else {
-		var mod = {
+		var module = {
 			exports: {}
 		};
-		factory(mod.exports, mod);
-		global.mongofilter = mod.exports;
+		factory(module.exports, module);
+		global.mongofilter = module.exports;
 	}
 })(this, function (exports, module) {
-	/*jshint esnext:true, laxcomma:true, laxbreak:true*/
+	/*jshint esnext:true, laxcomma:true, laxbreak:true, bitwise:false*/
+	/*global JSON*/
 	'use strict';
 
+	//-- expose the module to the rest of the world --//
 	module.exports = mongofilter;
 	var EXP_LIKE_PERCENT = /(^|[^%])%(?!%)/g // replace unescaped % chars
 	,
-	    EXP_LIKE_UNDERSCORE = /(^|[^\\])(_+)/g // replace unescaped _ char (must double antislash else will break in babel generated version)
+	    EXP_LIKE_UNDERSCORE = /(^|[^\\])(_+)/g // replace unescaped _ char (must double antislash or will break in babel generated version)
 	,
 	    EXP_LIKE_UNDERSCORE_REPLACE = function EXP_LIKE_UNDERSCORE_REPLACE(m, p, _) {
 		return p + new Array(_.length + 1).join('.');
 	},
 	    REGEXP_LIKE = function REGEXP_LIKE(pattern) {
-		return new RegExp('^' + pattern.replace(EXP_LIKE_PERCENT, '$1.*').replace(EXP_LIKE_UNDERSCORE, EXP_LIKE_UNDERSCORE_REPLACE) + '$');
+		return new RegExp('^' + pattern.replace(EXP_LIKE_PERCENT, '$1.*').replace(EXP_LIKE_UNDERSCORE, EXP_LIKE_UNDERSCORE_REPLACE) + '$') //jshint ignore:line
+		;
 	},
 	    EXP_REGEXP = /^\/([\s\S]*)\/([igm]*)$/,
 	    EXP_PRIMITIVE = /^(string|number|boolean)$/,
@@ -85,8 +88,9 @@
 	},
 	    LOGICS = {
 		$or: 'some',
-		$nor: 'some',
-		$and: 'every'
+		$nor: 'every',
+		$and: 'every',
+		$not: 'some'
 	},
 	    ALIASES = {
 		$e: '$eq',
@@ -109,7 +113,7 @@
 				return getPredicate(query[operator], operator, property)(item);
 			});
 		}
-		return operator === '$nor' ? !result : result;
+		return operator === '$nor' || operator === '$not' ? !result : result;
 	}
 
 	/**
@@ -159,9 +163,6 @@
 			return implicitCompare(item, query, operator);
 		};
 	}
-
-	//-- expose the module to the rest of the world --//
-
 	function mongofilter(query) {
 		if (typeof query === 'string') {
 			query = JSON.parse(query);
@@ -174,6 +175,13 @@
 			return collection && collection.filter ? collection.filter(predicate) : [];
 		};
 		predicate.filterItem = predicate;
+		predicate.or = function (subquery) {
+			return mongofilter({ $or: [query, subquery] });
+		};
+		predicate.and = function (subquery) {
+			return mongofilter({ $and: [query, subquery] });
+		};
+
 		return predicate;
 	}
 

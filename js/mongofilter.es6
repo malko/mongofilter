@@ -35,6 +35,7 @@ const EXP_LIKE_PERCENT = /(^|[^%])%(?!%)/g  // replace unescaped % chars
 		$or: 'some'
 		, $nor: 'every'
 		, $and: 'every'
+		, $not: 'some'
 	}
 	, ALIASES = {
 		$e:'$eq'
@@ -54,7 +55,7 @@ function logicalOperation(item, query, operator, property) {
 	} else {
 		result = Object.keys(query)[LOGICS[operator]]((operator) => getPredicate(query[operator], operator, property)(item));
 	}
-	return operator === '$nor' ? !result : result;
+	return operator === '$nor' || operator === '$not' ? !result : result;
 }
 
 /**
@@ -115,6 +116,9 @@ export default function mongofilter (query) {
 	let predicate = getPredicate(query);
 	predicate.filter = (collection) => collection && collection.filter ? collection.filter(predicate) : [];
 	predicate.filterItem = predicate;
+	predicate.or = (subquery) => mongofilter({$or:[query, subquery]});
+	predicate.and = (subquery) => mongofilter({$and:[query, subquery]});
+
 	return predicate;
 }
 

@@ -12,6 +12,10 @@ collection.filter(filter);
 
 // check a single item match against given filter
 filter.filterItem(item); // return true or false
+
+// also you can call 'and' or 'or' on the predicate directly:
+filter.and({prop:val}).filter(collection);
+filter.or({prop:val}).filter(collection);
 ```
 
 ## Comparison operators
@@ -42,3 +46,4 @@ filter.filterItem(item); // return true or false
 ### And: _$and_
 ### Or: _$or_
 ### Nor: _$nor_
+### Not: _$not_

@@ -140,5 +140,29 @@ describe("basic AND/OR/NOR testing", function () {
 	it('should handle "$nor" comparison {$nor:{prop:val,prop:val}}', function () {
 		expect(getFilteredValues({$nor:{age:[52,18],name:'tito'}})).to.eql(getTestAssertValues(0,2,3,4,5,6,7));
 		expect(getFilteredValues({$nor:{id:7, name:'tita'}})).to.eql(getTestAssertValues(0,1,2,3,4,5,7));
+
+	});
+
+	it('should handle "$not" comparison {$not: {prop: val}}', function () {
+		expect(getFilteredValues({$not:{age:12}})).to.eql(getTestAssertValues(0,1,2,3,4,5));
+	});
+	it('should handle "$not" comparison {$not: {prop: val, prop: val}}', function () {
+		expect(getFilteredValues({$not:{age:12, name: 'toto'}})).to.eql(getTestAssertValues(1,2,3,4,5));
+	});
+	it('should handle "$not" comparison {$not: [{prop: val}, {prop: val}]}', function () {
+		expect(getFilteredValues({$not:[{age:12}, {name: 'toto'}]})).to.eql(getTestAssertValues(1,2,3,4,5));
+	});
+});
+
+describe('predicate logical methods', function () {
+	it('should have a "and" method', function () {
+		var predicate = mongofilter({name:{$regex:"to$"}});
+		expect(testValues.filter(predicate.and({age:52}))).to.eql(getTestAssertValues(5));
+	});
+
+	it('should have an "or" method', function () {
+		var predicate = mongofilter({age:52});
+		expect(testValues.filter(predicate.or({name: 'tito'}))).to.eql(getTestAssertValues(1,5));
+		expect(testValues.filter(predicate.or({age:12}))).to.eql(getTestAssertValues(5,6,7));
 	});
 });
