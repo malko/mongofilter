@@ -1,6 +1,7 @@
 # mongofilter
 
 Filtering elements in collection based on json filters with a mongoQuery like syntax
+[![Build Status](https://travis-ci.org/malko/mongofilter.svg?branch=master)](https://secure.travis-ci.org/malko/mongofilter)
 
 ## Basic usage:
 ```javascript
