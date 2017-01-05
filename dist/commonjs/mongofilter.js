@@ -1,50 +1,43 @@
-/*https://github.com/malko/mongofilter brought to you under MIT licence by J.Gotti & A.Gibrat version: 1.0.5*/
+/*jshint esnext:true, laxcomma:true, laxbreak:true, bitwise:false*/
+/*global JSON*/
 'use strict';
 
 Object.defineProperty(exports, '__esModule', {
 	value: true
 });
-
-//-- expose the module to the rest of the world --//
-exports['default'] = mongofilter;
-/*jshint esnext:true, laxcomma:true, laxbreak:true, bitwise:false*/
-/*global JSON*/
-'use strict';
-
-var EXP_LIKE_PERCENT = /(^|[^%])%(?!%)/g // replace unescaped % chars
-,
-    EXP_LIKE_UNDERSCORE = /(^|[^\\])(_+)/g // replace unescaped _ char (must double antislash or will break in babel generated version)
-,
-    EXP_LIKE_UNDERSCORE_REPLACE = function EXP_LIKE_UNDERSCORE_REPLACE(m, p, _) {
+exports.mongofilter = mongofilter;
+var EXP_LIKE_PERCENT = /(^|[^%])%(?!%)/g,
+    // replace unescaped % chars
+EXP_LIKE_UNDERSCORE = /(^|[^\\\\])(_+)/g,
+    // replace unescaped _ char (must double antislash or will break in babel generated version)
+EXP_LIKE_UNDERSCORE_REPLACE = function EXP_LIKE_UNDERSCORE_REPLACE(m, p, _) {
 	return p + new Array(_.length + 1).join('.');
 },
     REGEXP_LIKE = function REGEXP_LIKE(pattern) {
-	return new RegExp('^' + pattern.replace(EXP_LIKE_PERCENT, '$1.*').replace(EXP_LIKE_UNDERSCORE, EXP_LIKE_UNDERSCORE_REPLACE) + '$') //jshint ignore:line
-	;
+	return new RegExp('^' + pattern.replace(EXP_LIKE_PERCENT, '$1.*').replace(EXP_LIKE_UNDERSCORE, EXP_LIKE_UNDERSCORE_REPLACE) + '$');
 },
-    EXP_REGEXP = /^\/([\s\S]*)\/([igm]*)$/,
+    //jshint ignore:line
+EXP_REGEXP = /^\/([\s\S]*)\/([igm]*)$/,
     EXP_PRIMITIVE = /^(string|number|boolean)$/,
     REGEXP_PARSE = function REGEXP_PARSE(pattern) {
 	if (typeof pattern === 'string') {
-		(function () {
-			var flag = undefined;
-			pattern.replace(EXP_REGEXP, function (m, e, f) {
-				pattern = e;flag = f;
-			});
-			pattern = flag ? new RegExp(pattern, flag) : new RegExp(pattern);
-		})();
+		var flag = undefined;
+		pattern.replace(EXP_REGEXP, function (m, e, f) {
+			pattern = e;flag = f;
+		});
+		pattern = flag ? new RegExp(pattern, flag) : new RegExp(pattern);
 	}
 	return pattern;
 },
     IS_PRIMITIVE = function IS_PRIMITIVE(value) {
-	return value == null || EXP_PRIMITIVE.test(typeof value) //jshint ignore:line
-	;
+	return value == null || EXP_PRIMITIVE.test(typeof value);
 },
-    IS_TESTABLE = function IS_TESTABLE(value) {
-	return value != null //jshint ignore:line
-	;
+    //jshint ignore:line
+IS_TESTABLE = function IS_TESTABLE(value) {
+	return value != null;
 },
-    COMPARATORS = {
+    //jshint ignore:line
+COMPARATORS = {
 	$gt: function $gt(a, b) {
 		return a > b;
 	},
@@ -156,6 +149,9 @@ function getPredicate(query, operator, property) {
 		return implicitCompare(item, query, operator);
 	};
 }
+
+//-- expose the module to the rest of the world --//
+
 function mongofilter(query) {
 	if (typeof query === 'string') {
 		query = JSON.parse(query);
@@ -179,6 +175,5 @@ function mongofilter(query) {
 }
 
 // allow comparators and aliases extensibility
-mongofilter.aliases = ALIASES;
-mongofilter.comparators = COMPARATORS;
-module.exports = exports['default'];
+exports.aliases = ALIASES;
+exports.comparators = COMPARATORS;
