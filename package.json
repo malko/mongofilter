@@ -1,6 +1,6 @@
 {
   "name": "mongofilter",
-  "version": "1.0.5",
+  "version": "2.0.0",
   "description": "mongoquery style for standard javascript collections",
   "main": "dist/commonjs/mongofilter.js",
   "scripts": {

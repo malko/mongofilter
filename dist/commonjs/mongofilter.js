@@ -1,3 +1,4 @@
+/*https://github.com/malko/mongofilter brought to you under MIT licence by J.Gotti & A.Gibrat version: 2.0.0*/
 /*jshint esnext:true, laxcomma:true, laxbreak:true, bitwise:false*/
 /*global JSON*/
 'use strict';
@@ -8,7 +9,7 @@ Object.defineProperty(exports, '__esModule', {
 exports.mongofilter = mongofilter;
 var EXP_LIKE_PERCENT = /(^|[^%])%(?!%)/g,
     // replace unescaped % chars
-EXP_LIKE_UNDERSCORE = /(^|[^\\\\])(_+)/g,
+EXP_LIKE_UNDERSCORE = /(^|[^\\])(_+)/g,
     // replace unescaped _ char (must double antislash or will break in babel generated version)
 EXP_LIKE_UNDERSCORE_REPLACE = function EXP_LIKE_UNDERSCORE_REPLACE(m, p, _) {
 	return p + new Array(_.length + 1).join('.');
