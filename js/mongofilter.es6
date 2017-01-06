@@ -106,7 +106,7 @@ function getPredicate(query, operator, property) { //jshint ignore:line
 }
 
 //-- expose the module to the rest of the world --//
-export default function mongofilter (query) {
+export function mongofilter (query) {
 	if (typeof query === 'string') {
 		query = JSON.parse(query);
 	}
@@ -123,5 +123,4 @@ export default function mongofilter (query) {
 }
 
 // allow comparators and aliases extensibility
-mongofilter.aliases = ALIASES;
-mongofilter.comparators = COMPARATORS;
+export { ALIASES as aliases, COMPARATORS as comparators };

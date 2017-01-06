@@ -3,7 +3,7 @@
 'use strict';
 var mocha = require('mocha'); // jshint ignore:line
 var expect = require('chai').expect;
-var mongofilter = require('../dist/commonjs/mongofilter.js');
+var mongofilter = require('../dist/commonjs/mongofilter.js').mongofilter;
 
 var testValues = [
 	{"id":1,"name":"toto","age":17}  //0
